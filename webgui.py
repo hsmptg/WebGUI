@@ -33,12 +33,14 @@ class WebGUI():
         def test_connect():
             if self.counter < 0:
                 print("create socket")
-                self.board = boards.Raspi()
+#                self.board = boards.Raspi()
+                self.board = boards.Duino()
                 self.board.onMsg = self.onMsg
                 self.counter = 0
             if self.counter == 0:
                 print("connect socket")
-                self.board.connect('192.168.1.93', 12345)
+#                self.board.connect('192.168.1.93', 12345)
+                self.board.connect('/dev/ttyACM0')
             self.counter += 1
             print("Counter= {0}".format(self.counter))
             print('Client connected')
