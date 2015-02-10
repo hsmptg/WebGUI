@@ -1,4 +1,5 @@
 from flask_socketio import SocketIO
+from flask_bootstrap import Bootstrap
 from flask import Flask, render_template
 import sys
 import platform
@@ -12,7 +13,9 @@ class WebGUI():
         else:
             self.toRaspi = True if platform.uname()[4] == "armv6l" else False
         print("toRaspi = {0}".format(self.toRaspi))
+        
         app = Flask(__name__)
+        Bootstrap(app)        
         app.config['DEBUG'] = False
         self.socketio = SocketIO(app)
         self.counter = -1;
@@ -24,7 +27,9 @@ class WebGUI():
         @app.route('/')
         def index():
             print("render index.html")
-            return render_template('index.html')
+#            return render_template('index.html')
+            return render_template("index2.html",
+                board = "Raspberry Pi" if self.toRaspi else "Arduino")
         
         @self.socketio.on('connect', namespace='/test')
         def test_connect():
