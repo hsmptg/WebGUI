@@ -1,20 +1,17 @@
 from flask_socketio import SocketIO
-#from flask.ext.socketio import SocketIO, emit
 from flask import Flask, render_template
-
-#===============================================================================
-# import sys #exit
-# import signal #signal
-#===============================================================================
-
 import sys
+import platform
 import boards
-            
+                
 class WebGUI():
     def __init__(self):
         print("Started WebGUI")
-        print 'Number of arguments:', len(sys.argv), 'arguments.'
-        print 'Argument List:', str(sys.argv)
+        if len(sys.argv) > 1:
+            self.toRaspi = True if ":" in sys.argv[1] else False
+        else:
+            self.toRaspi = True if platform.uname()[4] == "armv6l" else False
+        print("toRaspi = {0}".format(self.toRaspi))
         app = Flask(__name__)
         app.config['DEBUG'] = False
         self.socketio = SocketIO(app)
@@ -33,15 +30,19 @@ class WebGUI():
         def test_connect():
             if self.counter < 0:
                 print("create socket")
-#                self.board = boards.Raspi()
-                self.board = boards.Duino()
+                if self.toRaspi:
+                    self.board = boards.Raspi()
+                else:
+                    self.board = boards.Duino()
                 self.board.onMsg = self.onMsg
                 self.counter = 0
             if self.counter == 0:
                 print("connect socket")
-#                self.board.connect('192.168.1.93', 12345)
-#                self.board.connect('10.0.0.4', 12345)
-                self.board.connect('/dev/ttyACM0')
+                if self.toRaspi:
+#                    self.board.connect('192.168.1.93', 12345)
+                    self.board.connect('10.0.0.4', 12345)
+                else:
+                    self.board.connect('/dev/ttyACM0')
             self.counter += 1
             print("Counter= {0}".format(self.counter))
             print('Client connected')
