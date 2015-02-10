@@ -1,6 +1,7 @@
 import threading
 import socket
 import serial
+import time
 
 class Raspi(object):
     def __init__(self, parent=None):
@@ -37,9 +38,9 @@ class Raspi(object):
                     break # if conn lost get out!
                 buf = buf + dat
                 while "\r\n" in buf: # PuTTY send CR+LF per each "Enter" key
-                    (cmd, buf) = buf.split("\r\n", 1)
-                    if self.onMsg and cmd<>"":
-                        self.onMsg(cmd)                        
+                    (msg, buf) = buf.split("\r\n", 1)
+                    if self.onMsg and msg<>"":
+                        self.onMsg(msg)                        
             except socket.timeout:
                 #print("timeout")
                 continue
@@ -62,7 +63,7 @@ class Duino(object):
         try:
             self.ser.port = port
             self.ser.baudrate = 115200
-            self.ser.timeout = 1   
+            self.ser.timeout = 0 # non-blocking read 
             self.ser.open()
             self.th = threading.Thread(target = self._th_read)
             self.th.start()
@@ -72,27 +73,25 @@ class Duino(object):
             return False
   
     def sendCmd(self, cmd):
+        print("cmd= {0}".format(cmd))
         try:
-            self.ser.write(cmd + "\r\n")
+            self.ser.write(cmd + "\r")
         except serial.SerialException as e:
             print(e)                 
 
     def _th_read(self):
         buf = ""         
         while not self._exit:
+            time.sleep(0.1)
             try:
                 dat = self.ser.read(1024)
-                if dat == "":
-                    print("Disconnected")
-                    break # if conn lost get out!
-                buf = buf + dat
-                while "\r\n" in buf: # PuTTY send CR+LF per each "Enter" key
-                    (cmd, buf) = buf.split("\r\n", 1)
-                    if self.onMsg and cmd<>"":
-                        self.onMsg(cmd)                        
-#            except serial.timeout:
-#                print("timeout")
-#                continue
+                if dat <> "":
+                    buf = buf + dat
+                    while "\r\n" in buf: # PuTTY send CR+LF per each "Enter" key
+                        (msg, buf) = buf.split("\r\n", 1)
+                        if self.onMsg and msg <> "":
+                            print("msg= {0}".format(msg))
+                            self.onMsg(msg)                        
             except serial.SerialException as e:
                 print(e)
                 break

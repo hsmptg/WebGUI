@@ -40,6 +40,7 @@ class WebGUI():
             if self.counter == 0:
                 print("connect socket")
 #                self.board.connect('192.168.1.93', 12345)
+#                self.board.connect('10.0.0.4', 12345)
                 self.board.connect('/dev/ttyACM0')
             self.counter += 1
             print("Counter= {0}".format(self.counter))
