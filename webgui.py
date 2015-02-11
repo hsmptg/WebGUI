@@ -67,7 +67,8 @@ class WebGUI():
         @self.socketio.on('ledRCtrl', namespace='/test')
         def ledRCtrl(message):
             print(message['led'])
-            self.board.sendCmd('l1' if message['led'] else 'l0')
+#            self.board.sendCmd('l1' if message['led'] else 'l0')
+            self.board.sendCmd('a1' if message['led'] else 'a0')
                                         
         self.socketio.run(app, host = '0.0.0.0', port = 5001)
 
@@ -78,6 +79,9 @@ class WebGUI():
             self.socketio.emit('but', {'state': state}, namespace='/test')
         elif msg[0] == 'v':
             self.socketio.emit('setVersion', {'version': msg}, namespace='/test')
+        elif msg[0] == 'a':
+            d = msg.split()
+            self.socketio.emit('newData', {'data': int(d[1])}, namespace='/test')
         
 if __name__ == '__main__':
     gui = WebGUI()

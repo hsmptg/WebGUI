@@ -90,7 +90,6 @@ class Duino(object):
                     while "\r\n" in buf: # PuTTY send CR+LF per each "Enter" key
                         (msg, buf) = buf.split("\r\n", 1)
                         if self.onMsg and msg <> "":
-                            print("msg= {0}".format(msg))
                             self.onMsg(msg)                        
             except serial.SerialException as e:
                 print(e)

@@ -13,6 +13,8 @@
 			<p>LED <img id="ledR" onclick="changeLed(this.id)" src="{{ url_for('static', filename='imgs/butoff.png') }}" width="96" height="50">
 			<p>Button: <img id="imgBut"  src="{{ url_for('static', filename='imgs/ledoff.png') }}" width="60" height="50"></p>
         </div>	
+		<div class = "col-md-5" id = "container">
+        </div>	
 		<div class = "col-md-5" id = "log_space">
 			<div class="panel panel-default">
     			<div class="panel-heading clearfix">
@@ -33,6 +35,7 @@
 {% block scripts %}
 {{ super() }}
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+	<script src="http://code.highcharts.com/highcharts.js"></script>
 	
 	<script type="text/javascript" charset="utf-8">
 		namespace = '/test'; // change to an empty string to use the global namespace
@@ -67,7 +70,43 @@
 			        image.src = "{{ url_for('static', filename='imgs/ledon.png') }}";
 			    else
 			        image.src = "{{ url_for('static', filename='imgs/ledoff.png') }}";
-			});			
+			});		
+			
+            $('#container').highcharts({
+                chart: {
+                    type: 'line',
+                    animation: false
+                },
+                plotOptions: {
+                    series: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                yAxis: {
+                	min: -300,
+                	max: 300,
+                	tickInterval: 100,
+                },
+                series: [{
+                    data: (function () {
+                        var data = [], i;
+ 
+                        for (i=0; i<100; i++) {
+                            data.push(0);
+                        }
+                        return data;
+                    }())
+                }]
+            });
+            
+            socket.on('newData', function(msg) {
+            	n = msg.data;
+                $('#dat').text(n);
+                var chart = $('#container').highcharts();
+                chart.series[0].addPoint(n, true, true, false);                
+            });            
 		});
 	</script>	
 {% endblock %}
