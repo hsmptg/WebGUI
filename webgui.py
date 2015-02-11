@@ -81,7 +81,7 @@ class WebGUI():
             self.socketio.emit('setVersion', {'version': msg}, namespace='/test')
         elif msg[0] == 'a':
             d = msg.split()
-            self.socketio.emit('newData', {'data': int(d[1])}, namespace='/test')
+            self.socketio.emit('newData', {'x': int(d[1]), 'y': int(d[2]), 'z': int(d[3])}, namespace='/test')
         
 if __name__ == '__main__':
     gui = WebGUI()

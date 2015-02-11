@@ -72,40 +72,36 @@
 			        image.src = "{{ url_for('static', filename='imgs/ledoff.png') }}";
 			});		
 			
+			zeros100 = (function () {
+                var data = [], i;
+                
+                for (i=0; i<100; i++) {
+                    data.push(0);
+                }
+                return data;
+            }());
+            
             $('#container').highcharts({
                 chart: {
                     type: 'line',
                     animation: false
                 },
                 plotOptions: {
-                    series: {
-                        marker: {
-                            enabled: false
-                        }
-                    }
+                    series: { marker: { enabled: false } }
                 },
-                yAxis: {
-                	min: -300,
-                	max: 300,
-                	tickInterval: 100,
-                },
-                series: [{
-                    data: (function () {
-                        var data = [], i;
- 
-                        for (i=0; i<100; i++) {
-                            data.push(0);
-                        }
-                        return data;
-                    }())
-                }]
+                yAxis: { min: -300, max: 300, tickInterval: 100 },
+                series: [
+					{ data: zeros100, color: '#FF0000'},
+					{ data: zeros100, color: '#00FF00'},
+					{ data: zeros100, color: '#0000FF'}
+                ]
             });
             
             socket.on('newData', function(msg) {
-            	n = msg.data;
-                $('#dat').text(n);
                 var chart = $('#container').highcharts();
-                chart.series[0].addPoint(n, true, true, false);                
+                chart.series[0].addPoint(msg.x, true, true, false);                
+                chart.series[1].addPoint(msg.y, true, true, false);                
+                chart.series[2].addPoint(msg.z, true, true, false);                
             });            
 		});
 	</script>	
