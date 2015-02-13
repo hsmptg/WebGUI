@@ -15,11 +15,13 @@
         </div>	
     </div>
 	<div class = "row">
-		<div class = "col-md-9" id = "graph">
+		<div class = "col-md-5" id = "graph">
 			<h3>Graph</h3>
 		</div>
 		<div class = "col-md-3" id = "bargraph">
 			<h3>Bar</h3>
+		</div>
+		<div class = "col-md-4" id = "d3">
 		</div>
 	</div>          
 	<div class = "row">
@@ -46,7 +48,10 @@
 {{ super() }}
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
 	<script src="http://code.highcharts.com/highcharts.js"></script>
-	
+	<!-- 3D -->
+	<script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/Detector.js') }}"></script>	
+		
 	<script type="text/javascript" charset="utf-8">
 		namespace = '/test'; // change to an empty string to use the global namespace
 		var url = 'http://' + document.domain + ':' + location.port + namespace;
@@ -134,7 +139,66 @@
                 chart.series[1].addPoint(msg.y, true, true, false);                
                 chart.series[2].addPoint(msg.z, true, true, false);  
                 barchart.series[0].setData([msg.x, msg.y, msg.z]);
-            });            
+                setBlock(msg);
+            });   
+            
+		    $('#d3').height(300);
+		    
+	    	var scene;
+	    	var camera;
+	    	var cubeMesh;
+
+	    	initializeScene();
+
+	    	renderer.render(scene, camera);
+	    	
+	    	function initializeScene(){
+	    		if(Detector.webgl){
+	    			renderer = new THREE.WebGLRenderer({antialias:true});
+	    		} else {
+	    			renderer = new THREE.CanvasRenderer();
+	    		}
+	    		
+	    		renderer.setClearColor(0x000000, 1);
+	    		
+	    		canvasWidth = document.getElementById("d3").offsetWidth; 
+	    		canvasHeight = document.getElementById("d3").offsetHeight; 
+	    		
+	    		renderer.setSize(canvasWidth, canvasHeight); 
+	
+				document.getElementById("d3").appendChild(renderer.domElement);
+				
+				scene = new THREE.Scene();
+				
+				camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 100); 
+	    		camera.position.set(0, 0, 10); 
+	    		camera.lookAt(scene.position); 
+	    		scene.add(camera); 
+	    		
+	    		var cubeGeometry = new THREE.CubeGeometry(3.0, 2.0, 0.5); 
+	    		
+	    		var cubeMaterials = [
+					new THREE.MeshBasicMaterial({color:0xFF0000}),
+					new THREE.MeshBasicMaterial({color:0x00FF00}),
+					new THREE.MeshBasicMaterial({color:0x0000FF}),
+					new THREE.MeshBasicMaterial({color:0xFFFF00}),
+					new THREE.MeshBasicMaterial({color:0x00FFFF}),
+					new THREE.MeshBasicMaterial({color:0xFFFFFF})
+				];
+	    		
+	    		var cubeMaterial = new THREE.MeshFaceMaterial(cubeMaterials); 
+	    		
+	    		cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial); 
+	    		cubeMesh.position.set(0.0, 0.0, 0.0); 
+	    		scene.add(cubeMesh); 
+	    	}
+	    	
+	    	function setBlock(xyz) {
+				cubeMesh.rotation.x = xyz[0]/300*Math.PI;
+				cubeMesh.rotation.y = xyz[1]/300*Math.PI;
+				cubeMesh.rotation.z = xyz[2]/300*Math.PI;
+				renderer.render(scene, camera);         
+	    	}        
 		});
 	</script>	
 {% endblock %}
