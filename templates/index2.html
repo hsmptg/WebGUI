@@ -13,6 +13,16 @@
 			<p>LED <img id="ledR" onclick="changeLed(this.id)" src="{{ url_for('static', filename='imgs/butoff.png') }}" width="96" height="50">
 			<p>Button: <img id="imgBut"  src="{{ url_for('static', filename='imgs/ledoff.png') }}" width="60" height="50"></p>
         </div>	
+    </div>
+	<div class = "row">
+		<div class = "col-md-9" id = "graph">
+			<h3>Graph</h3>
+		</div>
+		<div class = "col-md-3" id = "bargraph">
+			<h3>Bar</h3>
+		</div>
+	</div>          
+	<div class = "row">
 		<div class = "col-md-5" id = "container">
         </div>	
 		<div class = "col-md-5" id = "log_space">
@@ -81,7 +91,7 @@
                 return data;
             }());
             
-            $('#container').highcharts({
+            $('#graph').highcharts({
                 chart: {
                     type: 'line',
                     animation: false
@@ -90,18 +100,40 @@
                     series: { marker: { enabled: false } }
                 },
                 yAxis: { min: -300, max: 300, tickInterval: 100 },
+                title:   { text: '3-axis accelerometer' },
+                legend:  { enabled: false },
+                credits: { enabled: false },
+                tooltip: { enabled: false },
                 series: [
-					{ data: zeros100, color: '#FF0000'},
-					{ data: zeros100, color: '#00FF00'},
-					{ data: zeros100, color: '#0000FF'}
+					{ name: 'x', data: zeros100, color: '#FF0000'},
+					{ name: 'y', data: zeros100, color: '#00FF00'},
+					{ name: 'z', data: zeros100, color: '#0000FF'}
                 ]
             });
+            var chart = $('#graph').highcharts();
             
+            $('#bargraph').highcharts({
+                chart: { type: 'column', animation: false },
+                title: { text: 'XYZ' },
+                xAxis: { categories: ['X', 'Y', 'Z'] },
+                credits: { enabled: false },
+                yAxis: {
+                	min: -300,
+                	max: 300,
+                	tickInterval: 100,
+                	title: {enabled: false}
+                },
+                legend:  { enabled: false },
+                series: [{ data: [{y:50, color:'#FF0000'}, {y:200, color:'#00FF00'}, {y:-150, color:'#0000FF'}] }]
+            });
+            var barchart = $('#bargraph').highcharts();
+
             socket.on('newData', function(msg) {
-                var chart = $('#container').highcharts();
+                //var chart = $('#container').highcharts();
                 chart.series[0].addPoint(msg.x, true, true, false);                
                 chart.series[1].addPoint(msg.y, true, true, false);                
-                chart.series[2].addPoint(msg.z, true, true, false);                
+                chart.series[2].addPoint(msg.z, true, true, false);  
+                barchart.series[0].setData([msg.x, msg.y, msg.z]);
             });            
 		});
 	</script>	
