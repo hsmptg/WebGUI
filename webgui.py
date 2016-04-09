@@ -11,14 +11,15 @@ class WebGUI():
         if len(sys.argv) > 1:
             self.toRaspi = True if ":" in sys.argv[1] else False
         else:
-            self.toRaspi = True if platform.uname()[4] == "armv6l" else False
+            self.toRaspi = True if platform.uname()[4][0:3] == "arm" else False
+        self.toRaspi = True
         print("toRaspi = {0}".format(self.toRaspi))
         
         app = Flask(__name__)
         Bootstrap(app)        
         app.config['DEBUG'] = False
         self.socketio = SocketIO(app)
-        self.counter = -1;
+        self.counter = -1
                 
         @app.before_first_request
         def initialize():
@@ -44,8 +45,9 @@ class WebGUI():
             if self.counter == 0:
                 print("connect socket")
                 if self.toRaspi:
+                    self.board.connect('192.168.1.103', 12345)
 #                    self.board.connect('192.168.1.93', 12345)
-                    self.board.connect('10.0.0.4', 12345)
+#                    self.board.connect('10.0.0.4', 12345)
                 else:
                     self.board.connect('/dev/ttyACM0')
             self.counter += 1
